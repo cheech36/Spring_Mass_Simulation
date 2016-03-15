@@ -14,6 +14,9 @@ class SpringMassSystem:
         self.body = sphere(pos = self.r, radius = 2, color = color.red)
         self.v = vector(0,0,0)
 
+        self.spring = helix(pos = origin, axis  = vector(self.axis) * self.L_eq
+                            , raius = .5)
+
     def recalc_v(self, dt):
         dv = -self.k/self.m * self.s
         self.v += dv
@@ -26,6 +29,7 @@ class SpringMassSystem:
 
     def render(self):
         self.body.pos = self.r
+        self.spring.axis = self.r
 
     def stretch(self, stretch):
         self.s = stretch * self.axis
@@ -54,7 +58,7 @@ class enviornment:
 
 
 
-system1 = SpringMassSystem(5,10)
+system1 = SpringMassSystem(5,10, vector(0,0,0), vector(1,0,0))
 system1.stretch(2)
 env1    = enviornment()
 env1.run(system1)
