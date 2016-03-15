@@ -5,6 +5,7 @@ class SpringMassSystem:
     def __init__(self, k, m, origin = vector(0,0,0), axis = vector(1,0,0)):
         self.k = k
         self.m = m
+        self.damping = 0
         self.origin = origin ## Fixed end of spring
         self.L_eq = 5
         self.axis = norm(axis)
@@ -24,7 +25,7 @@ class SpringMassSystem:
 
 
     def recalc_v(self, dt):
-        dv = -self.k/self.m * self.s
+        dv = -self.k/self.m * self.s - self.damping * self.v.mag * norm(self.s)
         self.v += dv
         return self.v
 
@@ -50,6 +51,8 @@ class SpringMassSystem:
         self.r_eq = self.origin + self.L_eq * self.axis
         self.r = vector(self.r_eq)
 
+    def set_dampingConst(self, b):
+        self.damping = b/self.m
 class enviornment:
     def __init__(self, time_resolution = .01):
         self.scene1 = display(x=0, y=0, width=1200, height = 600)
@@ -69,8 +72,9 @@ class enviornment:
 
 
 
-system1 = SpringMassSystem(5,10, vector(0,0,0), vector(0,-1,0))
+system1 = SpringMassSystem(3,10, vector(0,0,0), vector(0,-1,0))
 system1.set_springLength(20)
-system1.stretch(2)
+system1.set_dampingConst( .4 )
+system1.stretch(8)
 env1    = enviornment()
 env1.run(system1)
