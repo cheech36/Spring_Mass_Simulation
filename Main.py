@@ -16,6 +16,12 @@ class SpringMassSystem:
 
         self.spring = helix(pos = origin, axis  = vector(self.axis) * self.L_eq
                             , raius = .5)
+        self.mount = box(length=1, height=5, width=5)
+        self.mount.axis = vector(self.axis)
+        self.mount.pos = origin - self.axis * self.mount.length/2
+        self.mount.color = color.blue
+
+
 
     def recalc_v(self, dt):
         dv = -self.k/self.m * self.s
