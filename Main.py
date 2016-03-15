@@ -15,7 +15,7 @@ class SpringMassSystem:
         self.v = vector(0,0,0)
 
         self.spring = helix(pos = origin, axis  = vector(self.axis) * self.L_eq
-                            , raius = .5)
+                            , radius = 1, thickness = .25)
         self.mount = box(length=1, height=5, width=5)
         self.mount.axis = vector(self.axis)
         self.mount.pos = origin - self.axis * self.mount.length/2
@@ -45,6 +45,11 @@ class SpringMassSystem:
         displacement = self.r - self.r_eq
         self.s = displacement
 
+    def set_springLength(self, length):
+        self.L_eq = length
+        self.r_eq = self.origin + self.L_eq * self.axis
+        self.r = vector(self.r_eq)
+
 class enviornment:
     def __init__(self, time_resolution = .01):
         self.scene1 = display(x=0, y=0, width=1200, height = 600)
@@ -64,7 +69,8 @@ class enviornment:
 
 
 
-system1 = SpringMassSystem(5,10, vector(0,0,0), vector(1,0,0))
+system1 = SpringMassSystem(5,10, vector(0,0,0), vector(0,-1,0))
+system1.set_springLength(20)
 system1.stretch(2)
 env1    = enviornment()
 env1.run(system1)
