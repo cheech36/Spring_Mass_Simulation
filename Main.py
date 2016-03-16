@@ -61,19 +61,43 @@ class enviornment:
         self.scene1.range = (30,10,5)
         self.dt = time_resolution
 
-    def run(self, system):
+    def run(self, mgr):
         while true:
             rate(100)
-            system.recalc_v(self.dt)
-            system.recalc_r(self.dt)
-            system.recalc_stretch()
-            system.render()
+            mgr.recalc()
+            mgr.render()
 
+class systemManager:
+    def __init__(self, resolution = .02):
+        self.systemList = list()
+        self.dt = resolution
 
+    def addSystem(self, oscillator):
+        self.systemList.append(oscillator)
+
+    def recalc(self):
+        for s in self.systemList:
+            s.recalc_v(self.dt)
+            s.recalc_r(self.dt)
+            s.recalc_stretch()
+
+    def render(self):
+        for s in self.systemList:
+            s.render()
 
 system1 = SpringMassSystem(3,10, vector(0,0,0), vector(0,-1,0))
 system1.set_springLength(20)
 system1.set_dampingConst( .4 )
 system1.stretch(8)
+
+system2 = SpringMassSystem(3,10, vector(10,0,0), vector(0,-1,0))
+system2.set_springLength(20)
+system2.set_dampingConst( .4 )
+system2.stretch(8)
+
+mgr = systemManager()
+mgr.addSystem(system1)
+mgr.addSystem(system2)
+
 env1    = enviornment()
-env1.run(system1)
+env1.run(mgr)
