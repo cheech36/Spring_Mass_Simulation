@@ -62,14 +62,15 @@ class SpringMassSystem:
         self.damping = b/self.m
 
 class systemThread (threading.Thread):
-    def __init__(self, threadID, env, mgr):
+    def __init__(self, threadID,  mgr):
         threading.Thread.__init__(self)
         self.threadID = threadID
-        self.env = env
         self.mgr = mgr
 
     def run(self):
-        self.env.go(self.mgr)
+        while true:
+            self.mgr.recalc()
+            time.sleep(.01)
 
 class enviornment:
     def __init__(self, time_resolution = .01):
@@ -82,7 +83,6 @@ class enviornment:
     def go(self, mgr):
         while true:
             rate(100)
-            mgr.recalc()
             mgr.render()
 
 class systemManager:
@@ -116,15 +116,20 @@ system2.set_dampingConst( .4 )
 system2.stretch(8)
 
 mgr_th1 = systemManager()
-mgr_th1.addSystem(system1)
-
 mgr_th2 = systemManager()
+mgr_th1.addSystem(system1)
 mgr_th2.addSystem(system2)
 
-env1    = enviornment()
-
-systemThread1 = systemThread(1, env1, mgr_th1)
-systemThread2 = systemThread(2, env1, mgr_th2)
+systemThread1 = systemThread(1,  mgr_th1)
+systemThread2 = systemThread(2,  mgr_th2)
 
 systemThread1.start()
 systemThread2.start()
+
+mgr_graphics = systemManager()
+mgr_graphics.addSystem(system1)
+mgr_graphics.addSystem(system2)
+
+env1    = enviornment()
+env1.go(mgr_graphics)
+
