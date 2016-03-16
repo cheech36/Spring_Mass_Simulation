@@ -12,17 +12,15 @@ class SpringMassSystem:
         self.r_eq = self.origin + self.L_eq * self.axis
         self.r    = vector(self.r_eq)
         self.s = 0
-        self.body = sphere(pos = self.r, radius = 2, color = color.red)
+        self.body = sphere(pos = vector(self.r), radius = 2, color = color.red)
         self.v = vector(0,0,0)
 
-        self.spring = helix(pos = origin, axis  = vector(self.axis) * self.L_eq
+        self.spring = helix(pos = origin, axis  = vector(self.axis - self.origin) * self.L_eq
                             , radius = 1, thickness = .25)
         self.mount = box(length=1, height=5, width=5)
         self.mount.axis = vector(self.axis)
         self.mount.pos = origin - self.axis * self.mount.length/2
         self.mount.color = color.blue
-
-
 
     def recalc_v(self, dt):
         dv = -self.k/self.m * self.s - self.damping * self.v.mag * norm(self.s)
@@ -36,7 +34,7 @@ class SpringMassSystem:
 
     def render(self):
         self.body.pos = self.r
-        self.spring.axis = self.r
+        self.spring.axis = self.r - self.origin
 
     def stretch(self, stretch):
         self.s = stretch * self.axis
@@ -50,6 +48,8 @@ class SpringMassSystem:
         self.L_eq = length
         self.r_eq = self.origin + self.L_eq * self.axis
         self.r = vector(self.r_eq)
+        self.body.pos = vector(self.r)
+
 
     def set_dampingConst(self, b):
         self.damping = b/self.m
@@ -60,7 +60,6 @@ class enviornment:
         self.scene1.title = 'Spring Mass Oscillator'
         self.scene1.range = (30,10,5)
         self.dt = time_resolution
-
 
     def run(self, system):
         while true:
