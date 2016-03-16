@@ -1,5 +1,12 @@
 from __future__ import division
 from visual import *
+import threading
+import time
+
+## Currently give error
+## Need to move animation to primary thread
+## For more details see: https://groups.google.com/forum/#!topic/vpython-users/TsDyBN9AKHU
+
 
 class SpringMassSystem:
     def __init__(self, k, m, origin = vector(0,0,0), axis = vector(1,0,0)):
@@ -49,10 +56,21 @@ class SpringMassSystem:
         self.r_eq = self.origin + self.L_eq * self.axis
         self.r = vector(self.r_eq)
         self.body.pos = vector(self.r)
-
+        self.spring.axis  = self.r - self.origin
 
     def set_dampingConst(self, b):
         self.damping = b/self.m
+
+class systemThread (threading.Thread):
+    def __init__(self, threadID, env, mgr):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.env = env
+        self.mgr = mgr
+
+    def run(self):
+        self.env.go(self.mgr)
+
 class enviornment:
     def __init__(self, time_resolution = .01):
         self.scene1 = display(x=0, y=0, width=1200, height = 600)
@@ -61,7 +79,7 @@ class enviornment:
         self.scene1.range = (30,10,5)
         self.dt = time_resolution
 
-    def run(self, mgr):
+    def go(self, mgr):
         while true:
             rate(100)
             mgr.recalc()
@@ -71,9 +89,11 @@ class systemManager:
     def __init__(self, resolution = .02):
         self.systemList = list()
         self.dt = resolution
+        self.nSystems = 0
 
     def addSystem(self, oscillator):
         self.systemList.append(oscillator)
+        ++self.nSystems
 
     def recalc(self):
         for s in self.systemList:
@@ -90,14 +110,21 @@ system1.set_springLength(20)
 system1.set_dampingConst( .4 )
 system1.stretch(8)
 
-system2 = SpringMassSystem(3,10, vector(10,0,0), vector(0,-1,0))
+system2 = SpringMassSystem(10,10, vector(10,0,0), vector(0,-1,0))
 system2.set_springLength(20)
 system2.set_dampingConst( .4 )
 system2.stretch(8)
 
-mgr = systemManager()
-mgr.addSystem(system1)
-mgr.addSystem(system2)
+mgr_th1 = systemManager()
+mgr_th1.addSystem(system1)
+
+mgr_th2 = systemManager()
+mgr_th2.addSystem(system2)
 
 env1    = enviornment()
-env1.run(mgr)
+
+systemThread1 = systemThread(1, env1, mgr_th1)
+systemThread2 = systemThread(2, env1, mgr_th2)
+
+systemThread1.start()
+systemThread2.start()
